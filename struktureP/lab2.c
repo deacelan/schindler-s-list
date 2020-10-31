@@ -1,9 +1,9 @@
-/*Definirati strukturu osoba (ime, prezime, godina roðenja) i napisati program koji:
-a) dinamièki dodaje novi element na poèetak liste,
+/*Definirati strukturu osoba (ime, prezime, godina roÃ°enja) i napisati program koji:
+a) dinamiÃ¨ki dodaje novi element na poÃ¨etak liste,
 b) ispisuje listu,
-c) dinamièki dodaje novi element na kraj liste,
+c) dinamiÃ¨ki dodaje novi element na kraj liste,
 d) pronalazi element u listi (po prezimenu),
-e) briše odreðeni element iz liste,
+e) briÅ¡e odreÃ°eni element iz liste,
 U zadatku se ne smiju koristiti globalne varijable.
 */
 
@@ -26,45 +26,102 @@ typedef struct _person {
 	Position next;
 }Person;
 
+int insertInformation(Position p);
 Position createStudent(char *firstName, char *lastName, int birthYear);
-void insertAfter(Position where, Position what);
-void insertBefore(Position where, Position what);
-void printList(Position head);
-void findElement(Position head, char *lastName);
-
+int insertBeginning(Position where, Position what);
+int insertEnd(Position where, Position what);
+int printList(Position head);
+Position findElement(Position q, char *lN);
+Position findPrevious(Position p, char *previous);
+int deleteElement(Position p, char *lastN);
 
 int main(void) {
 	Person head;
+	Position q = NULL;
 	Position p = NULL;
+
+	char choose = 0;
+	char lastN = 0;
+	head.next = NULL;
+
+
+	while (choose != 'K' && choose != 'k')
+	{
+		printf("\r\Type in:");
+		printf("\r\n\t0 - enter person's info");
+		printf("\r\n\t1 - enter a person in the beginning");
+		printf("\r\n\t2 - print the list");
+		printf("\r\n\t3 - enter a person on the end");
+		printf("\r\n\t4 - search the person by last name");
+		printf("\r\n\t5 - delete");
+		printf("\r\n\tk - end\r\n\n\t");
+
+		scanf(" %c", &choose);
+
+		switch (choose)
+		{
+		case '0':
+			insertInformation(&head);
+			break;
+		case '1':
+			insertBeginning(&head,p);
+			break;
+		case '2':
+			printList(head.next);
+			break;
+		case '3':
+			insertEnd(&head, p);
+			break;
+		case '4':
+			printf("\r\nEnter the last name of the person you want to find:");
+			scanf(" %s", lastN);
+			q = findElement(head.next,&lastN);
+			if (NULL == q)
+				printf("\r\nTry again..");
+			else
+				printf("\r\n\t%s %s, %d", q->firstName, q->lastName, q->birthYear);
+			break;
+		case '5':
+			printf("\r\nEnter the last name of the person you want to delete:");
+			scanf(" %s", lastN);
+			if (NULL == q)
+				printf("\r\nTry again..");
+			deleteElement(&head, &lastN);
+			break;
+		case 'k':
+		case 'K':
+			printf("\r\nThe end!!!\n");
+			break;
+		default:
+			printf("\r\nYou failed!!! Try again..\n");
+		}
+
+
+
+	return EXIT_SUCCESS;
+}
+
+}
+int insertInformation(Position p){
 
 	char firstName[MAX_NAME] = { 0 };
 	char lastName[MAX_NAME] = { 0 };
 	int birthYear = 0;
-	head.next = NULL;
-	
-	
-	
+	printf("Please insert person's info:\r\n");
 
-		printf("Please insert person:\r\n");
+	printf("First name:\t");
+	scanf("%s", firstName);
 
-		printf("First name:\t");
-		scanf("%s", firstName);
+	printf("Last name:\t");
+	scanf("%s", lastName);
 
-		printf("Last name:\t");
-		scanf("%s", lastName);
+	printf("Birth year:\t");
+	scanf("%d", &birthYear);
 
-		printf("Birth year:\t");
-		scanf("%d", &birthYear);
-
-		p = createStudent(firstName, lastName, birthYear);
-		insertAfter(&head, p);
-
-	
-
-	
-
-	return EXIT_SUCCESS;
+	p = createStudent(firstName, lastName, birthYear);
+	return 0;
 }
+	
 
 Position createStudent(char *firstName, char *lastName, int birthYear) {
 	Position p = NULL;
@@ -81,12 +138,13 @@ Position createStudent(char *firstName, char *lastName, int birthYear) {
 	return p;
 }
 
-void insertAfter(Position where, Position what) {
+int insertBeginning(Position where, Position what) {
 	what->next = where->next;
 	where->next = what;
+	return 0;
 }
 
-void printList(Position head){
+int printList(Position head) {
 	Position p = NULL;
 
 	printf("List content:\r\n");
@@ -97,15 +155,50 @@ void printList(Position head){
 	}
 
 	printf("\r\n");
+	return 0;
 }
 
-void insertBefore(Position where, Position what){
-	while(where->next != NULL){
-		where = where->next;}
-	insertAfter(where,what);
+int insertEnd(Position where, Position what) {
+	while (where->next != NULL) {
+		where = where->next;
+	}
+	insertBeginning(where, what);
+	return 0;
 }
 
-void findElement(Position head, char *lastName){
-	
+Position findElement(Position q, char *lN) {
+	while (q->next != NULL && strcmp(q->lastName, lN)) {
+		q = q->next;
+	}
+	return q;
+}
+Position findPrevious(Position p, char *previous) {
+	Position prev = p;
+	p = p->next;
+
+	while (p->next != NULL && strcmp(p->lastName, previous)) {
+		prev = p;
+		p = p->next;
+	}
+	if (p->next == NULL) {
+		printf("Doesn't exist.\r\n");
+		return NULL;
+	}
+	return prev;
+}
+
+int deleteElement(Position p, char *previous) {
+	Position prev;
+	prev = findPrevious(p, previous);
+
+	if (prev != NULL) {
+		p = prev->next;
+		prev->next = p->next;
+		printf("\r\nPerson %s %s has been deleted from the list.", p->firstName, p->lastName);
+		free(p);
+	}
+	else
+		printf("\r\nPerson doesn't exist.");	
+	return 0;
 
 }
